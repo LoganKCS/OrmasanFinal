@@ -23,6 +23,7 @@ public class PdfReportService {
     @Autowired
     private VistaReporteCosteoRepository repository;
 
+    //Formato de fecha que se usa para convertir cadenas a fechas
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
@@ -51,7 +52,9 @@ public class PdfReportService {
      */
     public byte[] generatePdfBytes(ReporteViewDTO reporte,List<TrabajoDTO> listaTrabajoDTO) throws IOException {
         System.out.println("[DEBUG] Generando PDF para " + listaTrabajoDTO.size() + " registros.");
+        //Se crea un flujo de salida en memoria para guardar el PDF generado
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            //Se crea el documento PDF y se abre para escritura.
             Document doc = new Document();
             PdfWriter.getInstance(doc, out);
             doc.open();
@@ -60,6 +63,7 @@ public class PdfReportService {
             doc.add(new Paragraph("Total de registros: " + listaTrabajoDTO.size()));
             doc.add(new Paragraph(" "));
 
+            //Recorre la lista de trabajos y escribe en el PDF su nombre y fecha
             for (TrabajoDTO ltDTO : listaTrabajoDTO) {
                 doc.add(new Paragraph(
                     String.format("Nombre Trabajo: %s | Fecha: %s",
@@ -68,7 +72,7 @@ public class PdfReportService {
                     )
                 ));
             }
-            
+            //Escribe los indicadores financieros calculados en el PDF
             doc.add(new Paragraph("--------------------------------------------------"));
             doc.add(new Paragraph("***EFICIENCIA***"));
             doc.add(new Paragraph(
@@ -84,6 +88,7 @@ public class PdfReportService {
             
             return out.toByteArray();
 
+            //Maneja errores en caso de problemas al crear el PDF
         } catch (DocumentException e) {
             throw new IOException("Error al generar el PDF", e);
         }
