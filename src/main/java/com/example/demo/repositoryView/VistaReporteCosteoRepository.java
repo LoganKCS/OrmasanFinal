@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface VistaReporteCosteoRepository extends JpaRepository<VistaReporteCosteo, Long> {
-
+//consulta JPQL personalizada
     @Query("""
         SELECT v 
         FROM VistaReporteCosteo v
