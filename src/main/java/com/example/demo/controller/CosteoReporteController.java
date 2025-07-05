@@ -60,11 +60,13 @@ public class CosteoReporteController {
             @RequestParam("idZona") Long idZona,
             @RequestParam("fechaInicio") String fechaInicio,
             @RequestParam("fechaFin") String fechaFin,
+        //para mostrar mensajes
             RedirectAttributes redirect,
+        //permite escribir el PDF como descarga
             HttpServletResponse response) throws IOException {
 
     	String interfaz= null;
-        // 1) Traer filtrados y debug
+        // 1) Consulta y trae datos filtrados y debug
         List<VistaReporteCosteo> reportes =
             pdfService.fetchReportesPorZonaYFechas(idZona, fechaInicio, fechaFin);
 
@@ -88,8 +90,9 @@ public class CosteoReporteController {
         
         List<TrabajoDTO> listaTrabajoDTO = new ArrayList<>();
        
-        
+        //Se recorre cada VistaReporteCosteo
         for(VistaReporteCosteo vrc : reportes) {
+            ////Se suman los valores para obtener totales.
         	cFijo = cFijo.add(vrc.getCostoFijo());
         	cVariable = cVariable.add(vrc.getCostoVariable());
         	total = total.add(vrc.getCostoTotal());
@@ -99,10 +102,12 @@ public class CosteoReporteController {
            TrabajoDTO tb = new TrabajoDTO();
         	tb.setNombre(vrc.getNombreTrabajo());
         	tb.setFecha(vrc.getFecha());
+            //se crea una lista de trabajos (TrabajoDTO) para mostrar en el PDF
         	listaTrabajoDTO.add(tb);
         	 System.out.println("NOMBRE TRABAJO OBJETO: " + tb.getNombre());
              System.out.println("FECHA OBJETO: " + tb.getFecha());
         }
+            //calcula indicadores:margen y rentabilidad
         BigDecimal valorInterno = ganancia.add(total);
         margen = (ganancia.divide(valorInterno,4,RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(100));
         rentabilidad = (ganancia.divide(total,4,RoundingMode.HALF_UP)).multiply(BigDecimal.valueOf(100));
@@ -112,6 +117,7 @@ public class CosteoReporteController {
         	 System.out.println("NOMBRE TRABAJO LISTA: " + listaTrabajoDTO.get(i).getNombre());
              System.out.println("FECHA LISTA: " + listaTrabajoDTO.get(i).getFecha());
         }
+            //Este objeto contiene el resumen del reporte para pasarlo al generador de PDF
         ReporteViewDTO reporteView = new ReporteViewDTO();
         reporteView.setZonaTrabajo(reportes.get(0).getZonaTrabajo());
         reporteView.setCostoFijo(cFijo);
